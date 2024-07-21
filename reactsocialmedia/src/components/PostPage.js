@@ -11,7 +11,10 @@ const PostPage = ({ posts, onHandleDelete }) => {
         {post && (
           <>
             <h1>{post.title}</h1>
-            <p className="postbody">{post.body}</p>{" "}
+            <p className="postbody">{post.body}</p>
+            <Link to={`/edit/${post.id}`} className="btn">
+              <button>Edit</button>
+            </Link>
             <button onClick={() => onHandleDelete(post.id)}>Delete</button>
           </>
         )}

@@ -1,0 +1,24 @@
+{
+  "posts": [
+    {
+      "id": "1",
+      "title": "My first post",
+      "body": "1 - Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod."
+    },
+    {
+      "id": "2",
+      "title": "My second post",
+      "body": "2 - Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod."
+    },
+    {
+      "id": "3",
+      "title": "My third post",
+      "body": "3 - Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod."
+    },
+    {
+      "id": "4",
+      "title": "My fourth post",
+      "body": "4 - Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod."
+    }
+  ]
+}

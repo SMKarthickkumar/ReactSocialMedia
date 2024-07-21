@@ -8,37 +8,37 @@ import PostPage from "./components/PostPage";
 import About from "./components/About";
 import Missing from "./components/Missing";
 import Footer from "./components/Footer";
+import EditPost from "./components/EditPost";
 import { Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import api from "./api/posts";
 
 function App() {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      title: "My first post",
-      body: "1 - Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-    },
-    {
-      id: 2,
-      title: "My second post",
-      body: "2 - Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-    },
-    {
-      id: 3,
-      title: "My third post",
-      body: "3 - Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-    },
-    {
-      id: 4,
-      title: "My fourth post",
-      body: "4 - Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-    },
-  ]);
+  const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const navigate = useNavigate();
+  const [editTitle, seteditTitle] = useState("");
+  const [editBody, seteditBody] = useState("");
+
+  useEffect(() => {
+    const fetchdata = async () => {
+      try {
+        const result = await api.get("/posts");
+        setPosts(result.data);
+      } catch (err) {
+        if (err.response) {
+          console.log(err.response.data);
+          console.log(err.response.status);
+        } else {
+          console.log(err.message);
+        }
+      }
+    };
+    fetchdata();
+  }, []);
 
   useEffect(() => {
     const filteredPosts = posts.filter(
@@ -49,21 +49,57 @@ function App() {
     setSearchResults(filteredPosts.reverse());
   }, [posts, search]);
 
-  const onHanldeSubmit = (e) => {
+  const onHanldeSubmit = async (e) => {
     console.log("handle new post");
     e.preventDefault();
     const id = posts.length ? posts[posts.length - 1].id + 1 : 1;
-    const newPost = { id, title: title, body: body };
-    setPosts([...posts, newPost]);
-    setTitle("");
-    setBody("");
+    try {
+      const newPost = { id, title: title, body: body };
+      const response = await api.post("/posts", newPost);
+      setPosts([...posts, response.data]);
+      setTitle("");
+      setBody("");
+      navigate("/");
+    } catch (err) {
+      if (err.response) {
+        console.log(err.response.data);
+        console.log(err.response.status);
+      } else {
+        console.log(err.message);
+      }
+    }
   };
 
-  const onHandleDelete = (id) => {
-    console.log("handle delete");
-    const newPosts = posts.filter((post) => post.id !== id);
-    setPosts(newPosts);
-    navigate("/");
+  const onHandleDelete = async (id) => {
+    try {
+      console.log("handle delete");
+      await api.delete(`/posts/${id}`);
+      const newPosts = posts.filter((post) => post.id !== id);
+      setPosts(newPosts);
+      navigate("/");
+    } catch (err) {
+      if (err.response) {
+        console.log(err.response.data);
+        console.log(err.response.status);
+      } else {
+        console.log(err.message);
+      }
+    }
+  };
+
+  const onHanldeEdit = async (id) => {
+    const updatepost = { id, title: editTitle, body: editBody };
+    try {
+      const response = await api.put(`/posts/${id}`, updatepost);
+      setPosts(
+        posts.map((post) => (post.id === id ? { ...response.data } : post))
+      );
+      seteditBody("");
+      seteditTitle("");
+      navigate("/");
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   return (
@@ -104,11 +140,26 @@ function App() {
               />
             }
           />
+
           <Route
             path=":id"
             element={<PostPage posts={posts} onHandleDelete={onHandleDelete} />}
           />
         </Route>
+
+        <Route
+          path="/edit/:id"
+          element={
+            <EditPost
+              posts={posts}
+              onHanldeEdit={onHanldeEdit}
+              editTitle={editTitle}
+              seteditTitle={seteditTitle}
+              editBody={editBody}
+              seteditBody={seteditBody}
+            />
+          }
+        />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<Missing />} />
       </Routes>
